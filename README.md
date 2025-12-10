@@ -153,6 +153,7 @@ This can be executed manually after each Release build.
 - Mapping profiles (save/load JSON)
 - XInput support
 - Adjustable seek/volume step size
+- Adding VLC support
 
 ## Credits
 
