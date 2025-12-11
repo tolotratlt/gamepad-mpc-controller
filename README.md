@@ -1,17 +1,17 @@
 # Gamepad MPC Controller
 
-A Windows tool that allows controlling Media Player Classic (MPC-HC and MPC-BE) using any DirectInput-compatible gamepad.  
+A Windows tool that allows controlling Media Player Classic (MPC-HC and MPC-BE), VLC using any DirectInput and XInput compatible gamepad.  
 Supports buttons, axes, and POV (hat switch) with fully customizable mappings.
 
 ## Download
 
-A ready-to-use executable is available here:
+A ready to use executable is available here:
 https://github.com/tolotratlt/gamepad-mpc-controller/releases/tag/v1.1.0
 
 ## Features
 
-- DirectInput support (SharpDX)
-- Works with DualSense, Logitech gamepads, generic PC controllers and most HID devices
+- DirectInput, XInput support (SharpDX)
+- Works with DualSense, Xbox, Xbox 360, Logitech gamepads, generic PC controllers and most HID devices
 - Automatic input mapping via "Learn Mode"
 - Conflict-free mapping (a button cannot be assigned to multiple actions)
 - Axis mapping (seek via analog sticks)
@@ -19,7 +19,7 @@ https://github.com/tolotratlt/gamepad-mpc-controller/releases/tag/v1.1.0
 - Automatic disconnect/reconnect handling
 - System tray integration (Open, About, Quit)
 - About dialog included
-- Full compatibility with MPC-HC and MPC-BE window classes
+- Full compatibility with MPC-HC, MPC-BE and VLC window classes
 - Supported actions:
   - Play/Pause
   - Stop
