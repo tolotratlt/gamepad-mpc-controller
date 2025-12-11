@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace GamepadMpcController
@@ -8,9 +9,26 @@ namespace GamepadMpcController
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            // Mutex pour empêcher les doubles instances
+            bool createdNew = false;
+            using (var mutex = new Mutex(true, "GamepadMpcController_SingleInstance", out createdNew))
+            {
+                if (!createdNew)
+                {
+                    MessageBox.Show(
+                        "Gamepad MPC Controller is already running.",
+                        "Already Running",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+
+                    return;
+                }
+
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new MainForm());
+            }
         }
     }
 }

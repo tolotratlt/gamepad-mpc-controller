@@ -9,7 +9,7 @@ namespace GamepadMpcController
     public class MainForm : Form
     {
         private readonly GamepadManager gamepad;
-        private readonly MpcController mpc;
+        private readonly MediaController media;
         private readonly GamepadMapping mapping;
 
         private readonly Timer timer;
@@ -148,7 +148,7 @@ namespace GamepadMpcController
                 Text = "Gamepad MPC Controller",
                 Visible = true,
                 ContextMenuStrip = trayMenu,
-                Icon = Properties.Resources.controller_joystick_250186
+                Icon = Properties.Resources.gamepad_20_89419,
             };
             trayIcon.DoubleClick += (s, e) => RestoreFromTray();
 
@@ -158,7 +158,7 @@ namespace GamepadMpcController
 
             // initialisation logique
             gamepad = new GamepadManager();
-            mpc = new MpcController();
+            media = new MediaController();
             mapping = GamepadMapping.CreateDefault();
 
             entries = new BindingList<MappingEntry>(mapping.CreateEntries().ToList());
@@ -317,21 +317,21 @@ namespace GamepadMpcController
             if (state.Buttons == null)
                 return;
 
-            TryAction(mapping.PlayPause, state, () => mpc.PlayPause());
-            TryAction(mapping.SeekForward, state, () => mpc.SeekForward());
-            TryAction(mapping.SeekBackward, state, () => mpc.SeekBackward());
-            TryAction(mapping.Fullscreen, state, () => mpc.Fullscreen());
-            TryAction(mapping.Next, state, () => mpc.Next());
-            TryAction(mapping.Previous, state, () => mpc.Previous());
-            TryAction(mapping.VolumeUp, state, () => mpc.VolumeUp());
-            TryAction(mapping.VolumeDown, state, () => mpc.VolumeDown());
-            TryAxis(mapping.SeekForwardAxis, state, () => mpc.SeekForward());
-            TryAxis(mapping.SeekBackwardAxis, state, () => mpc.SeekBackward());
-            TryPOV(mapping.SeekForwardPOV, state, () => mpc.SeekForward());
-            TryPOV(mapping.SeekBackwardPOV, state, () => mpc.SeekBackward());
-            TryPOV(mapping.VolumeUpPOV, state, () => mpc.VolumeUp());
-            TryPOV(mapping.VolumeDownPOV, state, () => mpc.VolumeDown());
-            TryAction(mapping.StopAndMinimize, state, () => mpc.StopAndMinimize());
+            TryAction(mapping.PlayPause, state, () => media.PlayPause());
+            TryAction(mapping.SeekForward, state, () => media.SeekForward());
+            TryAction(mapping.SeekBackward, state, () => media.SeekBackward());
+            TryAction(mapping.Fullscreen, state, () => media.Fullscreen());
+            TryAction(mapping.Next, state, () => media.Next());
+            TryAction(mapping.Previous, state, () => media.Previous());
+            TryAction(mapping.VolumeUp, state, () => media.VolumeUp());
+            TryAction(mapping.VolumeDown, state, () => media.VolumeDown());
+            TryAxis(mapping.SeekForwardAxis, state, () => media.SeekForward());
+            TryAxis(mapping.SeekBackwardAxis, state, () => media.SeekBackward());
+            TryPOV(mapping.SeekForwardPOV, state, () => media.SeekForward());
+            TryPOV(mapping.SeekBackwardPOV, state, () => media.SeekBackward());
+            TryPOV(mapping.VolumeUpPOV, state, () => media.VolumeUp());
+            TryPOV(mapping.VolumeDownPOV, state, () => media.VolumeDown());
+            TryAction(mapping.StopAndMinimize, state, () => media.StopAndMinimize());
 
         }
 

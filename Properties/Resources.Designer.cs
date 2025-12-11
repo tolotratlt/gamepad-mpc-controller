@@ -63,9 +63,9 @@ namespace GamepadMpcController.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon controller_joystick_250186 {
+        internal static System.Drawing.Icon gamepad_20_89419 {
             get {
-                object obj = ResourceManager.GetObject("controller_joystick_250186", resourceCulture);
+                object obj = ResourceManager.GetObject("gamepad-20_89419", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
