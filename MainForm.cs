@@ -367,6 +367,7 @@ namespace GamepadMpcController
 
         private void DetectAxisChange(GamepadState s)
         {
+            // sticks : variation > 2000
             if (Math.Abs(s.X - previousState.X) > 2000)
             {
                 learningEntry.AxisRule.AxisName = "X";
@@ -411,7 +412,37 @@ namespace GamepadMpcController
                 grid.Refresh();
                 return;
             }
+
+            if (Math.Abs(s.Rz - previousState.Rz) > 2000)
+            {
+                learningEntry.AxisRule.AxisName = "Rz";
+                learningMode = false;
+                lblStatus.Text = "Rz axis assigned";
+                grid.Refresh();
+                return;
+            }
+
+            // XINPUT TRIGGERS (Ry, Rz)
+            // Variation > 10 suffit
+            if (Math.Abs(s.Ry - previousState.Ry) > 10)
+            {
+                learningEntry.AxisRule.AxisName = "Ry"; // Left Trigger (0–255)
+                learningMode = false;
+                lblStatus.Text = "Left Trigger assigned";
+                grid.Refresh();
+                return;
+            }
+
+            if (Math.Abs(s.Rz - previousState.Rz) > 10)
+            {
+                learningEntry.AxisRule.AxisName = "Rz"; // Right Trigger (0–255)
+                learningMode = false;
+                lblStatus.Text = "Right Trigger assigned";
+                grid.Refresh();
+                return;
+            }
         }
+
 
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
