@@ -6,7 +6,7 @@ Supports buttons, axes, and POV (hat switch) with fully customizable mappings.
 ## Download
 
 A ready-to-use executable is available here:
-https://github.com/tolotratlt/gamepad-mpc-controller/releases/tag/v1.0.0
+https://github.com/tolotratlt/gamepad-mpc-controller/releases/tag/v1.1.0
 
 ## Features
 
@@ -41,20 +41,26 @@ https://github.com/tolotratlt/gamepad-mpc-controller/releases/tag/v1.0.0
 
 ## Supported Media Players
 
-The tool supports all known MPC window classes:
+Tested and verified working with:
+
+- **MPC-HC 2.4.1** (from K-Lite Codec Pack)  
+- **MPC 1.8.5** (Microsoft Store version)  
+- **VLC 3.0.21 Vetinari**
+
+Detected MPC window classes include:
 
 - Media Player Classic  
 - Media Player Classic Home Cinema (MPC-HC)
 - MPC-BE  
 - MPC-BE x64  
-
-This ensures compatibility with all modern and older MPC-HC and MPC-BE versions.
+- VLC
 
 ## Supported Controllers
 
-Compatible with any DirectInput device, including:
+Compatible with any DirectInput and Xinput device, including:
 
 - Sony DualSense (USB and Bluetooth)
+- Xbox, Xbox 360 controller (wired and wireless)
 - Logitech gamepads
 - Generic HID controllers
 - Legacy PC joysticks
@@ -73,7 +79,7 @@ The tool automatically:
 3. Run `GamepadMpcController.exe`.
 
 If ILRepack was used, the program can run as a single portable `.exe`.  
-Otherwise, keep `SharpDX.dll` and `SharpDX.DirectInput.dll` beside the executable.
+Otherwise, keep `SharpDX.dll`, `SharpDX.DirectInput.dll` and `SharpDX.XInput.dll` beside the executable.
 
 ## How to Use
 
@@ -151,13 +157,11 @@ This can be executed manually after each Release build.
 ## Planned Improvements
 
 - Mapping profiles (save/load JSON)
-- XInput support
-- Adjustable seek/volume step size
-- Adding VLC support
+- ~~XInput support~~
+- ~~Adding VLC support~~
 
 ## Credits
 
 Developed by TLT
-2025
 
 Enjoy :]
