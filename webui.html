@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Remote</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            min-width: auto;
+            box-shadow: none;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(0, 0, 0, 0.15);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .fullscreen-toggle {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            min-width: auto;
+            box-shadow: none;
+        }
+
+        .fullscreen-toggle:hover {
+            background: rgba(0, 0, 0, 0.15);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .fullscreen-toggle:active {
+            transform: scale(0.95);
+        }
+
+        body.dark-mode .fullscreen-toggle {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .fullscreen-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 30, 46, 0.95);
+        }
+
+        body.dark-mode h2 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 16px 28px;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            min-width: 140px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            min-width: 180px;
+        }
+
+        button.primary:hover {
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        button.secondary:hover {
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
+        }
+
+        button.danger:hover {
+            box-shadow: 0 6px 20px rgba(250, 112, 154, 0.6);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            button {
+                padding: 14px 20px;
+                font-size: 14px;
+                min-width: 120px;
+            }
+
+            button.primary {
+                min-width: 150px;
+            }
+        }
+    </style>
+    <script>
+        function send(cmd) {
+            fetch('/api/' + cmd).catch(err => console.log(err));
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const btn = document.getElementById('theme-btn');
+            const isDark = document.body.classList.contains('dark-mode');
+            btn.textContent = isDark ? '☀️' : '🌙';
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Erreur plein écran:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+            updateFullscreenIcon();
+        }
+
+        function updateFullscreenIcon() {
+            const btn = document.getElementById('fullscreen-btn');
+            btn.textContent = document.fullscreenElement ? '🗗' : '⛶';
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenIcon);
+
+        window.onload = function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            updateThemeIcon();
+            updateFullscreenIcon();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <button id="fullscreen-btn" class="fullscreen-toggle" onclick="toggleFullscreen()">⛶</button>
+        <button id="theme-btn" class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        <h2>Gamepad MPC Controller Remote</h2>
+        <div class="controls">
+            <div class="button-row">
+                <button class="primary" onclick="send('playpause')">⏯ Play Pause</button>
+            </div>
+            <div class="button-row">
+                <button onclick="send('previous')">⏮ Previous</button>
+                <button onclick="send('next')">⏭ Next</button>
+            </div>
+            <div class="button-row">
+                <button onclick="send('seekbackward')">⏪ Seek Back</button>
+                <button onclick="send('seekforward')">⏩ Seek Forward</button>
+            </div>
+            <div class="button-row">
+                <button class="secondary" onclick="send('voldown')">🔉 Volume -</button>
+                <button class="secondary" onclick="send('volup')">🔊 Volume +</button>
+            </div>
+            <div class="button-row">
+                <button onclick="send('fullscreen')">⛶ Fullscreen</button>
+                <button class="danger" onclick="send('stop')">⏹ Stop</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

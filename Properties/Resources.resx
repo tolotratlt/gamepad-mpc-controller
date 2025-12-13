@@ -121,7 +121,10 @@
   <data name="gamepad-20_89419" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\gamepad-20_89419.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="gamepad_230053" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="webui" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\webui.html;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="window_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\gamepad_230053.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

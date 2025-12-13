@@ -27,16 +27,16 @@ namespace GamepadMpcController
             return new GamepadMapping
             {
                 PlayPause = new MappingRule { Name = "Play Pause", ButtonIndex = 0 },
-                Next = new MappingRule { Name = "Next", ButtonIndex = 1 },
-                Previous = new MappingRule { Name = "Previous", ButtonIndex = 2 },
-                VolumeUp = new MappingRule { Name = "Volume Up", ButtonIndex = 3 },
-                VolumeDown = new MappingRule { Name = "Volume Down", ButtonIndex = 4 },
-                SeekForward = new MappingRule { Name = "Seek Forward", ButtonIndex = 5 },
-                SeekBackward = new MappingRule { Name = "Seek Backward", ButtonIndex = 6 },
-                Fullscreen = new MappingRule { Name = "Fullscreen", ButtonIndex = 7 },
+                Next = new MappingRule { Name = "Next", ButtonIndex = -1 },
+                Previous = new MappingRule { Name = "Previous", ButtonIndex = -1 },
+                VolumeUp = new MappingRule { Name = "Volume Up", ButtonIndex = -1 },
+                VolumeDown = new MappingRule { Name = "Volume Down", ButtonIndex = -1 },
+                SeekForward = new MappingRule { Name = "Seek Forward", ButtonIndex = -1 },
+                SeekBackward = new MappingRule { Name = "Seek Backward", ButtonIndex = -1 },
+                Fullscreen = new MappingRule { Name = "Fullscreen", ButtonIndex = -1 },
                 SeekForwardAxis = new AxisRule
                 {
-                    Name = "SeekForward Axis",
+                    Name = "SeekForward (Axis)",
                     AxisName = "X",
                     Threshold = 48000,
                     TriggerAbove = true
@@ -44,7 +44,7 @@ namespace GamepadMpcController
 
                 SeekBackwardAxis = new AxisRule
                 {
-                    Name = "SeekBackward Axis",
+                    Name = "SeekBackward (Axis)",
                     AxisName = "X",
                     Threshold = 18000,
                     TriggerAbove = false

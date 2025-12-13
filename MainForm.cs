@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -28,23 +28,39 @@ namespace GamepadMpcController
 
         private GamepadState previousState;
 
+        private RemoteHttpServer remoteServer;
+        private CheckBox chkRemote;
+        private Label lblRemoteStatus;
+
+        private Button btnShowQr;
+
+        private NumericUpDown numPort;
+
+
         public MainForm()
         {
+            Program.FormRef = this;
+
             Text = "Gamepad MPC Controller";
-            Width = 600;
-            Height = 500;
+            Width = 750;
+            Height = 580;
+            MinimumSize = new Size(750, 450);
             StartPosition = FormStartPosition.CenterScreen;
 
-            // icone personnalisee
-            this.Icon = Properties.Resources.gamepad_230053;
+            // Icone personnalisee
+            this.Icon = Properties.Resources.window_icon;
 
-            // grille principale redimensionnable
+            // Grille principale redimensionnable avec marges
             grid = new DataGridView
             {
-                Dock = DockStyle.Fill,
+                Location = new Point(10, 10),
+                Size = new Size(710, 350),
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false
+                AllowUserToDeleteRows = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                MultiSelect = false
             };
 
             var colAction = new DataGridViewTextBoxColumn
@@ -52,6 +68,7 @@ namespace GamepadMpcController
                 DataPropertyName = "ActionName",
                 HeaderText = "Action",
                 ReadOnly = true,
+                Width = 220,
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             };
 
@@ -59,66 +76,137 @@ namespace GamepadMpcController
             {
                 DataPropertyName = "ButtonIndex",
                 HeaderText = "Button",
-                Width = 120,
+                Width = 100,
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.None
             };
-
-            grid.Columns.Add(colAction);
-            grid.Columns.Add(colButton);
 
             var colAxis = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "AxisName",
                 HeaderText = "Axis",
-                Width = 80
+                Width = 100,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None
             };
-
-            grid.Columns.Add(colAxis);
-
 
             var colPOV = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "POVDisplay",
                 HeaderText = "POV",
-                Width = 80
+                Width = 100,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None
             };
 
+            grid.Columns.Add(colAction);
+            grid.Columns.Add(colButton);
+            grid.Columns.Add(colAxis);
             grid.Columns.Add(colPOV);
 
-            // panneau inferieur pour bouton + label
-            var bottomPanel = new Panel
+            // Panneau de configuration - Section 1: Button Mapping
+            var mappingPanel = new GroupBox
             {
-                Dock = DockStyle.Bottom,
-                Height = 60
+                Text = "Button Mapping",
+                Location = new Point(10, 370),
+                Size = new Size(710, 70),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
             };
 
             btnLearn = new Button
             {
-                Text = "Learn from the next action button",
-                Left = 10,
-                Top = 10,
-                Width = 280,
-                Height = 30
+                Text = "Learn Mapping",
+                Location = new Point(15, 25),
+                Size = new Size(150, 32),
+                Font = new Font(Font.FontFamily, 9F, FontStyle.Regular)
             };
             btnLearn.Click += BtnLearn_Click;
 
             lblStatus = new Label
             {
-                Left = 300,
-                Top = 15,
-                Width = 260,
-                Height = 30,
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
-                Text = "Ready"
+                Location = new Point(180, 25),
+                Size = new Size(510, 32),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Text = "Ready - Select an action and click 'Learn Mapping'",
+                Font = new Font(Font.FontFamily, 9F, FontStyle.Regular),
+                AutoEllipsis = true,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right
             };
 
-            bottomPanel.Controls.Add(btnLearn);
-            bottomPanel.Controls.Add(lblStatus);
+            mappingPanel.Controls.Add(btnLearn);
+            mappingPanel.Controls.Add(lblStatus);
+
+            // Panneau de configuration - Section 2: Remote Control
+            var remotePanel = new GroupBox
+            {
+                Text = "Remote Control",
+                Location = new Point(10, 450),
+                Size = new Size(710, 85),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
+            };
+
+            // Ligne 1: Checkbox Enable
+            chkRemote = new CheckBox
+            {
+                Text = "Enable Remote Control",
+                Location = new Point(15, 25),
+                Size = new Size(180, 25),
+                Font = new Font(Font.FontFamily, 9F, FontStyle.Regular)
+            };
+            chkRemote.CheckedChanged += ChkRemote_CheckedChanged;
+
+            lblRemoteStatus = new Label
+            {
+                Location = new Point(210, 25),
+                Size = new Size(480, 25),
+                Text = "Remote: Disabled",
+                TextAlign = ContentAlignment.MiddleLeft,
+                Font = new Font(Font.FontFamily, 9F, FontStyle.Regular),
+                Anchor = AnchorStyles.Left | AnchorStyles.Right
+            };
+
+            // Ligne 2: Port + QR Code
+            var lblPort = new Label
+            {
+                Text = "Port:",
+                Location = new Point(15, 55),
+                Size = new Size(50, 25),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Font = new Font(Font.FontFamily, 9F, FontStyle.Regular)
+            };
+
+            numPort = new NumericUpDown
+            {
+                Name = "numPort",
+                Minimum = 1024,
+                Maximum = 65535,
+                Value = Properties.Settings.Default.RemotePort,
+                Location = new Point(70, 53),
+                Size = new Size(100, 25),
+                Enabled = true,
+                Font = new Font(Font.FontFamily, 9F, FontStyle.Regular)
+            };
+            numPort.ValueChanged += NumPort_ValueChanged;
+
+            btnShowQr = new Button
+            {
+                Text = "Show QR Code",
+                Location = new Point(560, 50),
+                Size = new Size(130, 28),
+                Enabled = false,
+                Anchor = AnchorStyles.Right,
+                Font = new Font(Font.FontFamily, 9F, FontStyle.Regular)
+            };
+            btnShowQr.Click += BtnShowQr_Click;
+
+            remotePanel.Controls.Add(chkRemote);
+            remotePanel.Controls.Add(lblRemoteStatus);
+            remotePanel.Controls.Add(lblPort);
+            remotePanel.Controls.Add(numPort);
+            remotePanel.Controls.Add(btnShowQr);
 
             Controls.Add(grid);
-            Controls.Add(bottomPanel);
+            Controls.Add(mappingPanel);
+            Controls.Add(remotePanel);
 
-            // menu de la zone de notification
+            // Menu de la zone de notification
             trayMenu = new ContextMenuStrip();
             var itemOpen = new ToolStripMenuItem("Open");
             itemOpen.Click += (s, e) => RestoreFromTray();
@@ -152,14 +240,16 @@ namespace GamepadMpcController
             };
             trayIcon.DoubleClick += (s, e) => RestoreFromTray();
 
-            // evenements fenetre
+            // Evenements fenetre
             FormClosing += MainForm_FormClosing;
             Resize += MainForm_Resize;
 
-            // initialisation logique
+            // Initialisation logique
             gamepad = new GamepadManager();
             media = new MediaController();
             mapping = GamepadMapping.CreateDefault();
+
+            remoteServer = new RemoteHttpServer();
 
             entries = new BindingList<MappingEntry>(mapping.CreateEntries().ToList());
             grid.DataSource = entries;
@@ -169,12 +259,10 @@ namespace GamepadMpcController
             timer.Tick += UpdateLoop;
             timer.Start();
 
-            // gestion clavier: Suppr = effacer bouton, Echap = annuler apprentissage
+            // Gestion clavier: Suppr = effacer bouton, Echap = annuler apprentissage
             this.KeyPreview = true;
             this.KeyDown += MainForm_KeyDown;
         }
-
-
 
         private void BtnLearn_Click(object sender, EventArgs e)
         {
@@ -212,7 +300,7 @@ namespace GamepadMpcController
                     var entry = grid.CurrentRow.DataBoundItem as MappingEntry;
                     if (entry != null)
                     {
-                        entry.ButtonIndex = -1;       // supprime l�assignation
+                        entry.ButtonIndex = -1;       // supprime l’assignation
                         lblStatus.Text = "Button action deleted " + entry.ActionName;
                         grid.Refresh();
                     }
@@ -267,10 +355,10 @@ namespace GamepadMpcController
 
                 if (!wasDown && isDown)
                 {
-                    // attribuer le bouton � l�entr�e courante
+                    // attribuer le bouton à l’entrée courante
                     learningEntry.ButtonIndex = i;
 
-                    // enlever ce bouton des autres entr�es
+                    // enlever ce bouton des autres entrées
                     foreach (var other in entries)
                     {
                         if (other != learningEntry && other.Rule != null)
@@ -426,7 +514,7 @@ namespace GamepadMpcController
             // Variation > 10 suffit
             if (Math.Abs(s.Ry - previousState.Ry) > 10)
             {
-                learningEntry.AxisRule.AxisName = "Ry"; // Left Trigger (0�255)
+                learningEntry.AxisRule.AxisName = "Ry"; // Left Trigger (0–255)
                 learningMode = false;
                 lblStatus.Text = "Left Trigger assigned";
                 grid.Refresh();
@@ -435,7 +523,7 @@ namespace GamepadMpcController
 
             if (Math.Abs(s.Rz - previousState.Rz) > 10)
             {
-                learningEntry.AxisRule.AxisName = "Rz"; // Right Trigger (0�255)
+                learningEntry.AxisRule.AxisName = "Rz"; // Right Trigger (0–255)
                 learningMode = false;
                 lblStatus.Text = "Right Trigger assigned";
                 grid.Refresh();
@@ -449,6 +537,7 @@ namespace GamepadMpcController
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
+                remoteServer?.Stop();
                 e.Cancel = true;
                 Hide();
                 ShowInTaskbar = false;
@@ -464,6 +553,83 @@ namespace GamepadMpcController
                 ShowInTaskbar = false;
             }
         }
+
+        private void ChkRemote_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkRemote.Checked)
+            {
+                int port = Properties.Settings.Default.RemotePort;
+                if (remoteServer.Start(port))
+                {
+                    lblRemoteStatus.Text = $"Remote: ON ({remoteServer.LocalIP}:{remoteServer.Port})";
+                    btnShowQr.Enabled = true;
+                    numPort.Enabled = false;
+                }
+                else
+                {
+                    lblRemoteStatus.Text = "Remote: FAILED (Port already in use?)";
+
+                    // éviter l'événement boucle : on décoche mais sans relancer ce code
+                    chkRemote.CheckedChanged -= ChkRemote_CheckedChanged;
+                    chkRemote.Checked = false;
+                    chkRemote.CheckedChanged += ChkRemote_CheckedChanged;
+
+                    btnShowQr.Enabled = false;
+                    numPort.Enabled = true;
+                }
+            }
+            else
+            {
+                remoteServer.Stop();
+                lblRemoteStatus.Text = "Remote: Disabled";
+                btnShowQr.Enabled = false;
+                numPort.Enabled = true;
+            }
+        }
+
+        private void BtnShowQr_Click(object sender, EventArgs e)
+        {
+            if (!chkRemote.Checked)
+                return;
+
+            string url = $"http://{remoteServer.LocalIP}:{remoteServer.Port}/";
+
+            using (var qf = new QrForm(url))
+                qf.ShowDialog(this);
+        }
+
+        private void NumPort_ValueChanged(object sender, EventArgs e)
+        {
+            var num = sender as NumericUpDown;
+            int newPort = (int)num.Value;
+
+            // Sauvegarde immédiate
+            Properties.Settings.Default.RemotePort = newPort;
+            Properties.Settings.Default.Save();
+
+            // Si remote OFF → rien à faire
+            if (!chkRemote.Checked)
+                return;
+
+            // Remote ON → on doit redémarrer
+            remoteServer.Stop();
+
+            if (remoteServer.Start(newPort))
+            {
+                lblRemoteStatus.Text = $"Remote: ON ({remoteServer.LocalIP}:{newPort})";
+            }
+            else
+            {
+                lblRemoteStatus.Text = "Remote: FAILED (Port already in use?)";
+
+                // rollback à l’ancien port
+                num.ValueChanged -= NumPort_ValueChanged;
+                num.Value = remoteServer.Port;
+                num.ValueChanged += NumPort_ValueChanged;
+            }
+        }
+
+
 
         private void RestoreFromTray()
         {
@@ -484,6 +650,17 @@ namespace GamepadMpcController
                 lblStatus.Text = "Action: " + rule.Name;
             }
         }
+
+        public void PlayPauseRemote() => media.PlayPause();
+        public void NextRemote() => media.Next();
+        public void PreviousRemote() => media.Previous();
+        public void SeekForwardRemote() => media.SeekForward();
+        public void SeekBackwardRemote() => media.SeekBackward();
+        public void VolumeUpRemote() => media.VolumeUp();
+        public void VolumeDownRemote() => media.VolumeDown();
+        public void FullscreenRemote() => media.Fullscreen();
+        public void StopRemote() => media.Stop();
+
 
     }
 

@@ -20,6 +20,8 @@ namespace GamepadMpcController
 
         private const int SW_MINIMIZE = 6;
 
+        private bool focusedOnce = false; // fix VLC bug on first launch
+
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
@@ -32,6 +34,32 @@ namespace GamepadMpcController
         [DllImport("user32.dll")]
         static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [DllImport("user32.dll")]
+        static extern bool SetCursorPos(int X, int Y);
+
+        [DllImport("user32.dll")]
+        static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, UIntPtr dwExtraInfo);
+
+        private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
+        private const uint MOUSEEVENTF_LEFTUP = 0x0004;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
 
         private IntPtr GetMpcHandle()
         {
@@ -99,21 +127,6 @@ namespace GamepadMpcController
             return IntPtr.Zero;
         }
 
-        private IntPtr GetActivePlayer()
-        {
-            IntPtr hwnd = GetMpcHandle();
-            if (hwnd != IntPtr.Zero)
-                return hwnd;
-
-            hwnd = GetVlcHandle();
-            if (hwnd != IntPtr.Zero)
-                return hwnd;
-
-            return IntPtr.Zero;
-        }
-
-
-
         public void PlayPause()
         {
             IntPtr mpc = GetMpcHandle();
@@ -126,7 +139,13 @@ namespace GamepadMpcController
             IntPtr vlc = GetVlcHandle();
             if (vlc != IntPtr.Zero)
             {
-                SendKeyTo(vlc, Keys.Space);
+                if (!focusedOnce)
+                {
+                    ForceFocus(vlc); // éviter le bug VLC au premier lancement
+                    focusedOnce = true;
+                }
+                
+                SendKeyTo(vlc,Keys.Space);
             }
         }
 
@@ -235,7 +254,7 @@ namespace GamepadMpcController
             IntPtr mpc = GetMpcHandle();
             if (mpc != IntPtr.Zero)
             {
-                Send(CMD_PREV);
+                Send(CMD_VOLUP);
                 return;
             }
 
@@ -243,7 +262,7 @@ namespace GamepadMpcController
             IntPtr vlc = GetVlcHandle();
             if (vlc != IntPtr.Zero)
             {
-                SendKeyTo(vlc, Keys.P);
+                SendKeyTo(vlc, Keys.Up);
             }
         }
 
@@ -259,7 +278,7 @@ namespace GamepadMpcController
             IntPtr vlc = GetVlcHandle();
             if (vlc != IntPtr.Zero)
             {
-                SendComboKey(vlc, Keys.ControlKey, Keys.Down);
+                SendKeyTo(vlc, Keys.Down);
             }
         }
 
@@ -324,25 +343,15 @@ namespace GamepadMpcController
 
             SendMessage(hwnd, WM_COMMAND, commandId, 0);
         }
-
-        private void SendKey(Keys key)
-        {
-            IntPtr hwnd = GetMpcHandle();
-            if (hwnd == IntPtr.Zero)
-                return;
-
-            // WM_KEYDOWN puis WM_KEYUP
-            const int WM_KEYDOWN = 0x0100;
-            const int WM_KEYUP = 0x0101;
-
-            SendMessage(hwnd, WM_KEYDOWN, (int)key, 0);
-            SendMessage(hwnd, WM_KEYUP, (int)key, 0);
-        }
+       
 
         private void SendKeyTo(IntPtr hwnd, Keys k)
         {
             const int WM_KEYDOWN = 0x0100;
             const int WM_KEYUP = 0x0101;
+
+            // Assurer que VLC reçoit la touche            
+            System.Threading.Thread.Sleep(50); // petite pause pour fiabiliser
 
             SendMessage(hwnd, WM_KEYDOWN, (int)k, 0);
             SendMessage(hwnd, WM_KEYUP, (int)k, 0);
@@ -358,5 +367,37 @@ namespace GamepadMpcController
             SendMessage(hwnd, WM_KEYUP, (int)key, 0);
             SendMessage(hwnd, WM_KEYUP, (int)modifier, 0);
         }
+
+        private void ForceFocus(IntPtr hwnd)
+        {
+            if (hwnd == IntPtr.Zero)
+                return;
+
+            // Amener la fenêtre au premier plan
+            BringWindowToTop(hwnd);
+            SetForegroundWindow(hwnd);
+
+            // Laisser Qt respirer
+            System.Threading.Thread.Sleep(80);
+
+            // Récupérer la taille de la fenêtre
+            if (!GetWindowRect(hwnd, out RECT rect))
+                return;
+
+            // Calcul du centre de la fenêtre
+            int centerX = rect.Left + (rect.Right - rect.Left) / 2;
+            int centerY = rect.Top + (rect.Bottom - rect.Top) / 2;
+
+            // Déplacer la souris
+            SetCursorPos(centerX, centerY);
+
+            // Simuler clic gauche
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+
+            // Pause finale pour garantir le focus clavier
+            System.Threading.Thread.Sleep(80);
+        }
+
     }
 }

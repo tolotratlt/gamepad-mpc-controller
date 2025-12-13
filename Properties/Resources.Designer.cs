@@ -71,11 +71,21 @@ namespace GamepadMpcController.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] webui {
+            get {
+                object obj = ResourceManager.GetObject("webui", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon gamepad_230053 {
+        internal static System.Drawing.Icon window_icon {
             get {
-                object obj = ResourceManager.GetObject("gamepad_230053", resourceCulture);
+                object obj = ResourceManager.GetObject("window_icon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }

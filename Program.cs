@@ -6,6 +6,8 @@ namespace GamepadMpcController
 {
     static class Program
     {
+        public static MainForm FormRef;
+
         [STAThread]
         static void Main()
         {

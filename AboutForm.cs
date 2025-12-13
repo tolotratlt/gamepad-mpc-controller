@@ -28,7 +28,7 @@ namespace GamepadMpcController
 
             var lblVersion = new Label
             {
-                Text = "Version: 1.1.0",
+                Text = "Version: 1.2.0",
                 AutoSize = true,
                 Left = 20,
                 Top = 50
