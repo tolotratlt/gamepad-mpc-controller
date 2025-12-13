@@ -237,8 +237,7 @@ ilrepack /out:GamepadMpcController_release.exe GamepadMpcController.exe SharpDX.
 ## Planned Improvements
 
 - Mapping profiles (save and load JSON)
-- Remote UI customization
-- Multiple controller profiles
+- more media player support
 
 ---
 
